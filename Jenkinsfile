@@ -14,10 +14,8 @@ pipeline {
                     '''
                 }
                  bat '''
-                    python -m venv venv
-                    call venv\\Scripts\\activate
-                    pip install grpcio==1.48.2
-                    pip install -r requirements.txt --no-deps
+                
+                    pip install -r requirements.txt 
                     '''
                
             
