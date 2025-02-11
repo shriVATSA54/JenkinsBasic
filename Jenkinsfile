@@ -8,13 +8,13 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'DockerHubCreds', passwordVariable: 'dockerHubPass', usernameVariable: 'dockerHubUser')]) {
 
-                    sh '''
+                    bat '''
                     echo ${myuser}
                     echo ${mypassword}
                     '''
                 }
 
-                sh "pip install -r requirements.txt"
+                bat "pip install -r requirements.txt"
             
             }
         }
