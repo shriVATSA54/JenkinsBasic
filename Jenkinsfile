@@ -13,11 +13,11 @@ pipeline {
                     echo ${mypassword}
                     '''
                 }
-                 bat '''
-                
-                    pip install -r requirements.txt 
-                    '''
-               
+
+                 bat 'python -m venv venv'
+                    bat 'venv\\Scripts\\activate && python -m pip install --upgrade pip'
+
+                     bat 'venv\\Scripts\\activate && pip install --only-binary=grpcio -r requirements.txt'
             
             }
         }
