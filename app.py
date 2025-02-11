@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
+print("Hello Shri")
 # A dictionary to store tasks with an ID
 tasks = {}
 task_id_counter = 1
