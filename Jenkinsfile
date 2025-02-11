@@ -13,8 +13,12 @@ pipeline {
                     echo ${mypassword}
                     '''
                 }
-
-                bat "pip install -r requirements.txt"
+                 bat '''
+                    python -m venv venv
+                    call venv\\Scripts\\activate
+                    pip install -r requirements.txt
+                    '''
+               
             
             }
         }
