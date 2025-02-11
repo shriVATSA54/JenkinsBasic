@@ -11,9 +11,7 @@ google-api-core==2.15.0
 google-auth==2.26.2
 google-generativeai==0.3.2
 googleapis-common-protos==1.62.0
-grpcio>=1.49.1,<2.0dev  # Updated to avoid conflicts
-grpcio-status>=1.49.1,<2.0dev  # Updated to match grpcio
-grpcio-tools>=1.49.1,<2.0dev  # Added for gRPC support
+
 idna==3.6
 iniconfig==2.0.0
 itsdangerous==2.1.2
