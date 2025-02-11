@@ -12,15 +12,12 @@ pipeline {
                     echo ${mypassword}
                     '''
                 }
-                bat 'python -m venv venv'
-                bat 'venv\\Scripts\\activate && python -m pip install --upgrade pip'
-                bat 'venv\\Scripts\\activate && pip install --only-binary=:all: grpcio grpcio-tools'
-                bat 'venv\\Scripts\\activate && pip install -r requirements.txt'
+                bat 'pip install -r requirements.txt'
             }
         }
         stage('Test') {
             steps {
-                bat 'venv\\Scripts\\activate && pytest'
+                bat 'pytest'
             }
         }
         stage('Deployment') {
