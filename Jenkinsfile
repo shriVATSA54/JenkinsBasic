@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-        PYTHON_VERSION = '3.11'
-        IMAGE_NAME = 'shrivatsa54/flask-task-app'
+        IMAGE_NAME = 'flask-app'
+        DOCKERHUB_REPO = 'yourdockerhubusername/flask-app'
         IMAGE_TAG = 'latest'
+        COMMIT_HASH = ''
     }
 
     stages {
@@ -20,22 +21,37 @@ pipeline {
             }
         }
 
-        stage('Deployment') {
-            input {
-                message "Do you want to proceed further?"
-                ok "Yes"
-            }
+        stage('Build Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'DockerHubCreds', usernameVariable: 'dockerHubUser', passwordVariable: 'dockerHubPass')]) {
+                script {
+                    // Get Git commit hash
+                    COMMIT_HASH = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+
+                    // Check if local image with tag exists
+                    def localImage = bat(script: "docker images -q ${IMAGE_NAME}:${COMMIT_HASH}", returnStdout: true).trim()
+                    if (localImage) {
+                        echo "Image for commit ${COMMIT_HASH} already exists locally. Skipping build."
+                    } else {
+                        bat "docker build -t ${IMAGE_NAME}:${COMMIT_HASH} ."
+                        bat "docker tag ${IMAGE_NAME}:${COMMIT_HASH} ${DOCKERHUB_REPO}:${IMAGE_TAG}"
+                        echo "Docker image built and tagged successfully."
+                    }
+                }
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'DockerHubCreds', passwordVariable: 'dockerHubPass', usernameVariable: 'dockerHubUser')]) {
                     script {
-                        // Build the Docker image
-                        bat "docker build -t %IMAGE_NAME%:%IMAGE_TAG% ."
-
-                        // Login to Docker Hub
-                        bat "echo %dockerHubPass% | docker login -u %dockerHubUser% --password-stdin"
-
-                        // Push the image to Docker Hub
-                        bat "docker push %IMAGE_NAME%:%IMAGE_TAG%"
+                        def imageExistsInDockerHub = bat(script: "docker manifest inspect ${DOCKERHUB_REPO}:${IMAGE_TAG}", returnStatus: true)
+                        if (imageExistsInDockerHub == 0) {
+                            echo "Image already exists in DockerHub. Skipping push."
+                        } else {
+                            bat "docker login -u ${dockerHubUser} -p ${dockerHubPass}"
+                            bat "docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}"
+                            echo "Image pushed to DockerHub."
+                        }
                     }
                 }
             }
